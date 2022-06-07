@@ -1,0 +1,6 @@
+[submodule "dependencies/vulnerable-grpc-example"]
+	path = dependencies/vulnerable-grpc-example
+	url = git@github.com:ikaneViasat/vulnerable-grpc-example.git
+[submodule "dependencies/protofuzz"]
+	path = dependencies/protofuzz
+	url = git@github.com:ikaneViasat/protofuzz.git
