@@ -2,7 +2,10 @@ import grpc
 import logging
 import os
 from libs.channel import create_client_channel
-from fuzzers.hello_world import HelloWorldFuzzer
+from fuzzers.default_fuzzer import DefaultFuzzer
+from libs.class_info import ClassInfo
+from libs.proto_info import ProtoInfo
+from libs.req_info import ReqInfo
 
 class FilterNewLines(logging.Filter):
     def filter(self, record):
@@ -35,8 +38,11 @@ class Client:
     def run_hello_world_fuzzer(self):
         setup_logger('HelloWorldLog', 'logs/hello_world.log')
         logger = logging.getLogger('HelloWorldLog')
-        fuzzer = HelloWorldFuzzer(self.hostname, self.metadata, logger)
-        fuzzer.hello_world()
+        class_info = ClassInfo('compiled_proto.hello_world', 'helloworld_pb2', 'helloworld_pb2_grpc')
+        proto_info = ProtoInfo('/dependencies/vulnerable-grpc-example/protos/', 'helloworld.proto')
+        req_info = ReqInfo(class_info, proto_info, 'GreeterStub', 'HelloRequest', 'SayHello')
+        fuzzer = DefaultFuzzer(self.hostname, self.metadata, logger, req_info)
+        fuzzer.start_fuzzer()
         fuzzer.write_junit_report()
 
 def main():
