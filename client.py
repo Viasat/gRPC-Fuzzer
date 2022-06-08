@@ -38,7 +38,7 @@ class Client:
     def run_hello_world_fuzzer(self):
         setup_logger('HelloWorldLog', 'logs/hello_world.log')
         logger = logging.getLogger('HelloWorldLog')
-        class_info = ClassInfo('compiled_proto.hello_world', 'helloworld_pb2', 'helloworld_pb2_grpc')
+        class_info = ClassInfo('dependencies.vulnerable-grpc-example.python.helloworld', 'helloworld_pb2', 'helloworld_pb2_grpc')
         proto_info = ProtoInfo('/dependencies/vulnerable-grpc-example/protos/', 'helloworld.proto')
         req_info = ReqInfo(class_info, proto_info, 'GreeterStub', 'HelloRequest', 'SayHello')
         fuzzer = DefaultFuzzer(self.hostname, self.metadata, logger, req_info)
