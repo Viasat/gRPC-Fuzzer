@@ -4,7 +4,7 @@ git clone --recurse-submodules #TODO: update giturl
 
 > pip3 install -r requirements.txt
 
-Inside dependencies/protofuzz if changes are made to protofuzz pip3 uninstall it and using:
+Inside dependencies/protofuzz if changes are made to protofuzz pip3 uninstall it and install it using:
  > sudo python3 setup.py install
 
 symlink compiled_proto/x to your x python gRPC files which you can submodule in dependencies.
