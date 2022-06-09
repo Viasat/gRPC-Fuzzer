@@ -1,12 +1,14 @@
 Requirements:  
-git clone --recurse-submodules #TODO: update giturl
+> git clone --recurse-submodules https://github.com/ikaneViasat/gRPC-Fuzzer.git
+
 > sudo apt install -y protobuf-compiler python3 python3-pip git cmake
-
 > pip3 install -r requirements.txt
+> cd dependencies/protofuzz && sudo python3 setup.py install
 
-Inside dependencies/protofuzz if changes are made to protofuzz pip3 uninstall it and install it using:
+Inside dependencies/protofuzz if changes are made to protofuzz sudo pip3 uninstall it and install it using:
  > sudo python3 setup.py install
 
-symlink compiled_proto/x to your x python gRPC files which you can submodule in dependencies.
+Note that compiled_proto has a symlink to /tmp which is where protofuzz puts compiled proto files.
 
+To Run:
 python3 client.py
