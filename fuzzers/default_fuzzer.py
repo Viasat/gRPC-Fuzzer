@@ -2,11 +2,11 @@ import asyncio
 import datetime
 import grpc
 import os
+from google.protobuf.json_format import MessageToDict
 from junit_xml import TestSuite, TestCase
 from libs.helpers import max_concurrent
 from libs.pb2_modules import PB2Modules
 from libs.req_info import ReqInfo
-from google.protobuf.json_format import MessageToDict
 
 TIMEOUT=15
 
@@ -14,7 +14,8 @@ TIMEOUT=15
     Fuzzes a single grpc request.
 '''
 class DefaultFuzzer:
-    def __init__(self, hostname, metadata, logger, modules: PB2Modules, message_fuzzers, req_info: ReqInfo):
+    def __init__(self, hostname, metadata, logger,
+                 modules: PB2Modules, message_fuzzers, req_info: ReqInfo):
         self.hostname = hostname
         self.metadata = metadata
         self.logger = logger
@@ -24,13 +25,16 @@ class DefaultFuzzer:
         self.message_fuzzers = message_fuzzers
 
     '''
-        Given the payload from protofuzz, make the grpc call and check if the server crashes or times out indicating a thread crash.
+        Given the payload from protofuzz, make the grpc call and check if the 
+        server crashes or times out indicating a thread crash.
     '''
     async def fuzzer_task(self, obj) -> None:
         async with grpc.aio.insecure_channel(self.hostname) as channel:
-            stub = getattr(self.modules.pb2_grpc, self.req_info.stub_name)(channel=channel)            
+            stub = getattr(self.modules.pb2_grpc, self.req_info.stub_name)(channel=channel)
             proto_as_dict = MessageToDict(obj) # TODO: make sure this works with nested objects
-            request_payload = getattr(self.modules.pb2, self.req_info.request_input_name)(**proto_as_dict)
+            request_payload = getattr(
+                self.modules.pb2, self.req_info.request_input_name
+                )(**proto_as_dict)
             try:
                 response = await getattr(stub, self.req_info.request_name)(
                     request=request_payload,
@@ -38,9 +42,11 @@ class DefaultFuzzer:
                     timeout=TIMEOUT
                 )
             except grpc.RpcError as rpc_error:
-                if rpc_error.code() == grpc.StatusCode.DEADLINE_EXCEEDED or rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
+                if rpc_error.code() == grpc.StatusCode.DEADLINE_EXCEEDED or \
+                        rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
                     self.logger.info('%s,%s', self.req_info.request_name, request_payload)
-                    tc = TestCase(self.req_info.request_input_name, self.req_info.request_name, TIMEOUT, '', '', None, datetime.datetime.now().isoformat())
+                    tc = TestCase(self.req_info.request_input_name, self.req_info.request_name,
+                                  TIMEOUT, '', '', None, datetime.datetime.now().isoformat())
                     tc.add_failure_info(request_payload)
                     self.test_cases.append(tc)
                     if rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
@@ -72,7 +78,8 @@ class DefaultFuzzer:
         Publishes a junit report which is good for jenkins.
     '''
     def write_junit_report(self):
-        tc = TestCase(self.req_info.request_name + ' Finished', self.req_info.request_name, TIMEOUT, '', '')
+        tc = TestCase(self.req_info.request_name + ' Finished', self.req_info.request_name,
+                      TIMEOUT, '', '')
         self.test_cases.append(tc)
         ts = TestSuite(self.req_info.request_name + " Fuzzing Suite", self.test_cases)
         cwd = os.getcwd()

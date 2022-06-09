@@ -1,10 +1,10 @@
 import logging
 import os
+from protofuzz import protofuzz
 from fuzzers.default_fuzzer import DefaultFuzzer
 from libs.pb2_modules import PB2Modules
 from libs.proto_info import ProtoInfo
 from libs.req_gen import ReqGen
-from protofuzz import protofuzz
 
 class FilterNewLines(logging.Filter):
     def filter(self, record):
@@ -31,31 +31,38 @@ class Client:
         self.authenticate()
 
     '''
-        Call your authentication grpc and set metadata or client data here. Depends on authentication method.
+        Call your authentication grpc and set metadata or client data here.
+        Depends on authentication method.
+        If you are using client certs, you will need to setup a local proxy like nginx.
     '''
     def authenticate(self):
         return
-        
+
 
     '''
-        Compiles the proto using protofuzz, which also returns a dictionary {proto_object_name: protofuzz.protofuzz.ProtobufGenerator}
-        Protofuzz also puts the generated grpc python proto files which is symlinked in compiled_proto/tmp
+        Compiles the proto using protofuzz, which also returns a dictionary:
+            {proto_object_name: protofuzz.protofuzz.ProtobufGenerator}
+        Protofuzz also puts the generated grpc python proto files which is
+            symlinked in compiled_proto/tmp
         Load the modules into the program using PB2Modules
 
         Return the dictionary and the modules.
     '''
     def load_modules(self, proto_info):
-        message_fuzzers, pb2_path = protofuzz.from_file(proto_info.include_path, proto_info.proto_path)
+        message_fuzzers, pb2_path = protofuzz.from_file(proto_info.include_path,
+                                                        proto_info.proto_path)
 
         pb2_python_module_name = os.path.splitext(os.path.basename(pb2_path))[0]
         pb2_grpc_python_module_name = pb2_python_module_name + "_grpc"
         pb2_python_module_path = ("compiled_proto" + os.path.dirname(pb2_path)).replace("/", ".")
 
-        modules = PB2Modules(pb2_python_module_path, pb2_python_module_name, pb2_grpc_python_module_name)
+        modules = PB2Modules(pb2_python_module_path, pb2_python_module_name,
+                             pb2_grpc_python_module_name)
         return modules, message_fuzzers
 
     '''
-        Parse the grpc python proto files and grab all of the stubs, requests, and inputs to those requests.
+        Parse the grpc python proto files and grab all of the stubs, requests,
+        and inputs to those requests.
 
         Return a list of that information.
     '''
@@ -78,14 +85,16 @@ class Client:
         modules, message_fuzzers = self.load_modules(proto_info)
         req_infos = self.generate_requests(modules)
         for req_info in req_infos:
-            fuzzer = DefaultFuzzer(self.hostname, self.metadata, logger, modules, message_fuzzers, req_info)
+            fuzzer = DefaultFuzzer(self.hostname, self.metadata, logger,
+                                   modules, message_fuzzers, req_info)
             fuzzer.start_fuzzer()
             fuzzer.write_junit_report()
 
 def main():
-    # Pass me the proto file and I'll compile and fuzz all the requests in it. Note that a new Client is needed for every proto file.
+    # Pass me the proto file and I'll compile and fuzz all the requests in it.
+    # Note that a new Client is needed for every proto file.
     client = Client()
-    proto_info = ProtoInfo('/dependencies/vulnerable-grpc-example/protos/', 'helloworld.proto')
+    proto_info = ProtoInfo('dependencies/vulnerable-grpc-example/protos/', 'helloworld.proto')
     client.run_fuzzer(proto_info)
     
 
