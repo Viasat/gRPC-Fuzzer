@@ -31,7 +31,7 @@ class DefaultFuzzer:
     async def fuzzer_task(self, obj) -> None:
         async with grpc.aio.insecure_channel(self.hostname) as channel:
             stub = getattr(self.modules.pb2_grpc, self.req_info.stub_name)(channel=channel)
-            proto_as_dict = MessageToDict(obj) # TODO: make sure this works with nested objects
+            proto_as_dict = MessageToDict(obj)
             request_payload = getattr(
                 self.modules.pb2, self.req_info.request_input_name
                 )(**proto_as_dict)
