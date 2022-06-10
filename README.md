@@ -15,9 +15,10 @@ sudo ../../venv/bin/python3 setup.py install
 cd -
 ```
 
-Inside dependencies/protofuzz if changes are made to protofuzz sudo pip3 uninstall it and install it using:
+Inside dependencies/protofuzz if changes are made to protofuzz:
 ```
 cd dependencies/protofuzz
+sudo ../../venv/bin/pip3 uninstall protofuzz
 sudo ../../venv/bin/python3 setup.py install
 cd -
 ```
