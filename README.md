@@ -27,6 +27,7 @@ Note that compiled_proto has a symlink to /tmp which is where protofuzz puts com
 
 To Run:
 python3 client.py
+python3 client.py -h 
 
 To add your own proto:
 Create a client in the main function of client.py

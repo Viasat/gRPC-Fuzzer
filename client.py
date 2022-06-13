@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 from protofuzz import protofuzz
@@ -90,13 +91,29 @@ class Client:
             fuzzer.start_fuzzer()
             fuzzer.write_junit_report()
 
-def main():
+def main(args):
     # Pass me the proto file and I'll compile and fuzz all the requests in it.
-    # Note that a new Client is needed for every proto file.
     client = Client()
-    proto_info = ProtoInfo('dependencies/vulnerable-grpc-example/protos/', 'helloworld.proto')
-    client.run_fuzzer(proto_info)
+    for proto in args.protos:
+        proto_info = ProtoInfo(args.include_path, proto)
+        client.run_fuzzer(proto_info)    
     
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="Uses protofuzz to send payloads to \
+        gRPC endpoints described in .proto files passed in \
+        using -I and -p",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-I", "--include-path", help="The directory where the protos are stored. \
+        Note this must point to the common ancestor of the protos.  So if a proto references a \
+        proto in the aunt's directory, then this must point to the grandparent directory. \
+        Otherwise if it does not reference a non-sibling proto then this is just the directory the \
+        proto is stored in (parent).",
+        default="dependencies/vulnerable-grpc-example/protos/")
+    parser.add_argument("-p", "--protos", help="The name of the proto file(s).  This can also be a \
+        comma seperated list.",
+        default="helloworld.proto")
+    args = parser.parse_args()
+    args.protos = args.protos.replace(" ", "")
+    args.protos = args.protos.split(",")
+    main(args)
