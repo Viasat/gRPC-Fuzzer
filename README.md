@@ -11,7 +11,7 @@ git clone --recurse-submodules git@github.com:Viasat/gRPC-Fuzzer.git
 python3 -m pip install virtualenv
 python3 -m virtualenv venv
 source venv/bin/activate
-python3 -m pip install -r requirements.txt
+venv/bin/pip3 install -r requirements.txt
 cd dependencies/protofuzz
 sudo ../../venv/bin/python3 setup.py install
 cd -
