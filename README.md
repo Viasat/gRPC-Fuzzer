@@ -3,7 +3,9 @@ Requirements:
   python 3.8+
 > sudo apt install -y python3 python3-pip git
 
-> git clone --recurse-submodules https://github.com/ikaneViasat/gRPC-Fuzzer.git
+```
+git clone --recurse-submodules git@github.com:Viasat/gRPC-Fuzzer.git
+```
 
 ```
 python3 -m pip install virtualenv
@@ -15,7 +17,7 @@ sudo ../../venv/bin/python3 setup.py install
 cd -
 ```
 
-Inside dependencies/protofuzz if changes are made to protofuzz:
+A COMMON GOTCHA: Inside dependencies/protofuzz if changes are made to protofuzz:
 ```
 cd dependencies/protofuzz
 sudo ../../venv/bin/pip3 uninstall protofuzz
